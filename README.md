@@ -121,7 +121,165 @@ With these basic constructs in mind, let's move on to talk about the underlying 
                   (delay ((lift3 f) (force (stream-tail strm1)) (force (stream-tail strm2)) (force (stream-tail strm3))))))))
   ```
 
+  In Haskell:
+
+  ```
+  -- 1: The 'overloaded' dollar-sign operator --
+  ($*) :: Behaviour (a -> b) -> Behaviour a -> Behaviour b
+  ff $* fb = \ts -> zipWith ($) (ff `at` ts) (fb `at` ts)
+
+  -- 2: The lift0 operator --
+  lift0 :: a -> Behaviour a
+  lift0 x = map (const x) -- mapping to an infinite stream of constant values --
+
+  -- 3: The lift1 operator --
+  lift1 :: (a -> b) -> (Behaviour a -> Behaviour b)
+  lift1 f fb = lift0 f $* fb
+
+  -- 4: The lift2 operator --
+  lift2 :: (a -> b -> c) -> (Behaviour a -> Behaviour b -> Behaviour c)
+  lift2 f fb sb = lift1 f fb $* sb
+
+  -- 5: The lift3 operator --
+  lift3 :: (a -> b -> c -> d) -> (Behaviour a -> Behaviour b -> Behaviour c -> Behaviour d)
+  lift3 f fb sb tb = lift2 f fb sb $* tb
+  ```
+
+  4. Integrals
+
+  Since continuous time is one of FRP's main assets, the notion of computing an integral is quite intuitive especially with the use of streams. We only show the Racket versions from now on:
+
+  ```
+  ; Integrals
+  (define (integral fb)
+    (define (loop prev-t prev-acc ts as)
+      (if (or (empty-stream? ts) (empty-stream? as))
+          empty-stream
+          (let* ((t (stream-head ts))
+                 (a (stream-head as))
+                 (acc (+ prev-acc (* (- t prev-t) a))))
+            (stream acc
+                    (delay (loop t acc (force (stream-tail ts)) (force (stream-tail as))))))))
+
+    (lambda (ts)
+      (if (empty-stream? ts)
+          empty-stream
+          (stream 0 (delay (loop (stream-head ts) 0 (force (stream-tail ts)) (fb ts)))))))
+  ```
+
+  5. Event Mapping
+
+  Another useful construct in FRP is the event mapping operator, which basically implements the `map` operator for event streams. That is, given a pre-existing event stream with certain values, event mapping applies a given function to all `(just val)` type values in the event stream.
+
+  ```
+  ; Event mapping operator
+  (define (event-map fe f)
+    (lambda (timestream)
+      (if (empty-stream? timestream)
+          empty-stream
+          (let ((event (stream-head (fe timestream))))
+            (stream (match event
+                      [(just v)
+                       (just (f v))]  ; Apply the function to the value inside 'just'
+                      [(nothing) (nothing)])   ; Leave 'nothing' unchanged
+                    (delay ((event-map fe f) (force (stream-tail timestream)))))))))
+  ```
+
+  6. Event Choice
+
+  One more useful concept in FRP is that of choosing between events. This creates a larger, composite event, and allows, for example, behaviours to change their values if one of two events occur (e.g., turn on the screen of a phone either when it is picked up (E1) or if the power button is pressed once (E2)).
+
+  ```
+  ; Choice operator
+  (define (event-choice fe1 fe2)
+    (lambda (timestream)
+      (if (empty-stream? timestream)
+          empty-stream
+          (let* ((event1 (stream-head (fe1 timestream)))
+                 (event2 (stream-head (fe2 timestream))))
+            (stream (match (list event1 event2)
+                           [(list (nothing) (nothing)) (nothing)]
+                           [(list (just x) _) (just x)]
+                           [(list _ (just x)) (just x)])
+                    (delay ((event-choice fe1 fe2) (force (stream-tail timestream)))))))))
+  ```
+
+  7. Snapshots
+
+  The notion of a snapshot is quite simple - capture the value of a behaviour along with the event value when a certain event occurs:
+
+  ```
+  ; Snapshot operator: Combine event and behavior streams
+  (define (snapshot fe fb)
+    (lambda (timestream)
+      (if (empty-stream? timestream)
+          empty-stream
+          (let* ((event (stream-head (fe timestream)))
+                 (behavior (stream-head (fb timestream))))
+            (stream (match event
+                           [(just x) (just (cons x behavior))]
+                           [(nothing) (nothing)])
+                    (delay ((snapshot fe fb) (force (stream-tail timestream)))))))))
+  ```
+
+  8. Behaviour Switching
+
+  This is really where we get into the interactions between Behaviour and Event objects. Based on the occurrence of an event, the `untilFRP` operator allows us to change the way a Behaviour 'behaves' if an event occurrence is recorded:
+
+  ```
+  ; Until operator
+  (define (untilFRP fb fe)
+    (lambda (timestream)
+      (define (loop ts ev-stream old-behaviour)
+        (cond
+          [(empty-stream? ts) empty-stream]
+          [(empty-stream? ev-stream) 
+           (stream (stream-head (old-behaviour ts))
+                   (delay (loop (force (stream-tail ts)) (force (stream-tail ev-stream)) old-behaviour)))]
+          [else
+           (let ([event (stream-head ev-stream)])
+             (match event
+               [(nothing)
+                (stream (stream-head (old-behaviour ts))
+                        (delay (loop (force (stream-tail ts)) (force (stream-tail ev-stream)) old-behaviour)))]
+               [(just new-behaviour)
+                (stream (stream-head (new-behaviour ts))
+                        (delay (loop (force (stream-tail ts)) (force (stream-tail ev-stream)) old-behaviour)))]))]))
+      (loop timestream (fe timestream) fb)))
+  ```
+
+  9. Predicate Events
+
+  This is the last main construct for FRP as defined in the stream implementation in the original paper. The idea is straightforward, for a Behaviour with the first state transition from False to True at timestep `k`, a predicate event fires at that timestep (i.e., when the condition is first true). This is implemented as:
+
+  ```
+  ; when operator: Trigger an event on first state transition False -> True
+  (define (when fb)
+    (lambda (ts)
+      (define (loop prev-bool bs)
+        (cond
+          [(empty-stream? bs) empty-stream] ; If boolean stream is empty, stop
+          [else
+           (let ([b (stream-head bs)])
+             (cond
+               ; Transition from False to True -> produce event
+               [(and (not prev-bool) b) ; False -> True transition
+                (stream (just 'True) (delay (loop b (force (stream-tail bs)))))]
+               ; Otherwise no event
+               [else
+                (stream (nothing) (delay (loop b (force (stream-tail bs)))))]))]))
+      (loop #f (fb ts)))) ; Start with prev-bool as False
+  ```
+
+The various commented examples included in the `graphics.rkt` and `Main.hs` files may be used to verify the functionality of the two implementations. 
+
 ## Known Limitations
+
+Note that there may likely be further optimizations and programming patterns, especially for the Racket implementation, that aren't as 'elegant' as they could be. At the moment, these are due to my lack of in-depth experience with Lisp-like languages (and functional programming overall). However, the aim is to extend these implementations to work with tangible electronic devices for haptic feedback, and thus subsequent iterations will build in further optimizations.
+
+The first limitation that immediately came to mind while working on this project was that in some sense, FRP really seems like a DSL built for the way Haskell represents information and instructions. Even reading through the implementations - although the core FRP libraries do not take up much space, the Racket implementation is much harder to read, at least for eyes that have not yet been exposed to Lisp/Scheme-like syntaxes for long durations of time. In Haskell, everything is concise and reads very similarly to actual mathematical notation - of course, this partly due to the way whitespaces are used in the language, but a large part of this is the amount of abstraction Haskell offers out of the box.
+
+A stylistic tendency that I noticed when working on the Haskell implementation, specifically on the graphics interfacing functions - despite Haskell's 'purity', the majority of graphics programming is done in an imperative style. Thus, the functions dealing with those parts of the code look much less 'declarative' and are subsequently harder to read for fresh eyes - `do` is used all over the place, as are monads to deal with side effects inherent to IO, Windowing and GUI applications. However, a pre-existing graphics library was used for Racket, and thus the relevant code is much more declarative in nature with the 'ugly' graphics interfacing handled by the library. This choice was made because (1) I had already implemented graphics interfacing modules for the Haskell implementation, following Conal Elliot's lecture notes, and (2) the focus of the project is more on the core functions of FRP and how it is used for reactive animations in a Fran-like package, not on the low-level graphics interfacing. My research interests are adjacents to graphics, and thus I implemented the Haskell interface as a way to teach myself Haskell programming through a domain of interest.
 
 ## Performance
 

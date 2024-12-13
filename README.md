@@ -293,11 +293,23 @@ Coming to the main attraction, slightly dulled by my failure to provide fully-fu
 4. `Drawing` - A similar wrapper to compose regions, and introduce colours.
 5. `Animation` - A stream transformer (i.e., pretty much a Behaviour) that outputs different `Drawing` instances for each time-step.
 
-Examples are included in code, and some fancier animations are shown in the video.
+Examples are included in code, and some fancy animations are shown in the video along with a few mathematical operations enabled by Fran.
 
 ## Alternative Approaches
 
+In the beginning of this report, I mentioned that Conal Elliot's opinion of the core essence of FRP differs from what FRP is widely perceived as today. Evan Czaplicki, author of the Elm language and someone who has worked with FRP for quite a while mentions in one [talk](https://www.youtube.com/watch?v=Agu6jipKfYw&t=482s) a set of dimensions through which different FRP formulations can be categorized. He mentions First-Order FRP, which is how it worked in Elm (at the time, the language is no longer based on FRP). Here, signals (behaviours) are connected to the world, and are thus associated with side effects. They are infinite, which is something that lends itself nicely to the stream-based implementations described here. However, Elm's signal 'graph' (i.e. the way these signals are arranged, how many there are, how they communicate etc.) is static, and the code is synchronous by default. While this is exactly what Elliot seems to mention is NOT the core idea behind FRP, it is still worth looking at these different approaches. After all, continuous-time FRP isn't perfect, and modern implementations can be more resource-efficient for the applications they are widely used for (web programming, GUIs) as opposed to the more primitive FRP discussed here. While our FRP satisfies properties with respect to time sampling that are highly useful for real-time applications, these many samples are not necessary for UI applications that do not involve a lot of moving parts (or continuous behaviours in general).
+
+Czaplicki also mentions Higher-Order FRP, and how such implementations do away with static signal graphs, as well as Asynchronous Data Flow, which basically just retains the idea of signals being connected to the world and discards every other design constraint seen in other FRP implementations.
+
+Again, there are pros and cons to different FRP formulations, and each one brings a different perspective to the table. As an outsider to the field of programming languages research, I will say that these names get quite confusing indeed, so perhaps breaking up the larger FRP behemoth into more appropriate categories is something worth considering :)
+
 ## Future Work/Applications
+
+As I've been unable to finish the Racket port of Fran, the first thing I'd like to do is complete it and test it out. In particular, I'd like to see how implementation differences between Haskell and Racket arise, and if there are any major stylistic differences that come up in the Racket implementation (for example, how easy is it to completely abstract away time in Racket's graphics libraries?).
+
+Another, more interesting area for future work that I have in mind is directly associated with my research. I have been working on software tools to make development for haptic feedback simpler, and FRP's declarative syntax seems like an excellent way to abstract away underlying microcontroller code. I plan to test out my FRP implementation to, for example, vary the amplitude of a linear resonant actuator, thus rendering 'reactive' vibrations, so to speak.
+
+Lastly, this is more of the same, but I would like to extend the Haskell implementation of Fran to 3D graphics and animations. The Racket implementation served as more of an illustrative/educational tool for me and helped me understand exactly where Haskell and FRP are different (most implementations seen in papers use Hugs or Haskell, which I found tricky to navigate in the sense that I sometimes accidentally assumed an FRP feature to be a feature of Haskell - the event mapping operator ==> is one example, and the way pattern matching and lambda functions work was another one for me). However, I really enjoyed learning Haskell, and would like to continue working with the language - thus, extending the animation library to 3D animations is a natural next step.
 
 ## Note
 

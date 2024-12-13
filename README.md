@@ -6,7 +6,7 @@ This implementation follows the stream-based approach towards defining FRP const
 
 ## Introduction 
 
-Functional Reactive Programming (FRP) emerged as a powerful paradigm for programming reactive systems, first introduced in the seminal 1997 paper on Functional Reactive Animation (Fran) by Elliott and Hudak [LINK HERE]. FRP combines functional programming principles with reactive programming to handle time-varying values and event-based systems in a declarative manner. Since then, there have been multiple follow up works that explore different approaches towards implementing FRP, however, [Elliot himself](https://github.com/conal/talk-2015-essence-and-origins-of-frp?tab=readme-ov-file#readme) has stated that these representations do not capture the two basic requirements for an FRP implementation:
+Functional Reactive Programming (FRP) emerged as a powerful paradigm for programming reactive systems, first introduced in the [1997 paper](http://conal.net/papers/icfp97/) on Functional Reactive Animation (Fran) by Elliott and Hudak. FRP combines functional programming principles with reactive programming to handle time-varying values and event-based systems in a declarative manner. Since then, there have been multiple follow up works that explore different approaches towards implementing FRP, however, [Elliot himself](https://github.com/conal/talk-2015-essence-and-origins-of-frp?tab=readme-ov-file#readme) has stated that these representations do not capture the two basic requirements for an FRP implementation:
 
 - Precise, Simple Denotation
 - Continuous Time

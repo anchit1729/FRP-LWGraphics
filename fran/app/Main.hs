@@ -1,6 +1,6 @@
 module Main where
 import FRP -- Where our FRP implementation resides
-import Data.Time -- For fast access to system clock
+import Data.Time -- For access to system clock
 import Control.Concurrent (threadDelay)
 import Graphics.UI.GLUT
 import Graphics.Rendering.OpenGL (GLfloat)
@@ -124,7 +124,12 @@ main = do
     -- draw2 "Picture Click Test" drawing
 
     -- Animations (Finally!)
-    main3
+    -- main1
+    -- main2
+    main3 
+    -- main4
+    -- main5
+    -- main6
 
     -- Older versions: fewer abstractions, attempting to directly interface Behaviours with OpenGL code
     -- As we'll see, 

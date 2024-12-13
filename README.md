@@ -296,3 +296,7 @@ Examples are included in code, and some fancier animations are shown in the vide
 ## Alternative Approaches
 
 ## Future Work/Applications
+
+## Note
+
+My initial project pitch involved writing a mini-interpreter for Scheme to implement FRP and Fran. In hindsight, I see how significant an undertaking this project was, and it probably was not a reasonable goal to achieve within one term. However, I did make progress while writing an interpreter for Scheme before deciding against the idea. I've also included source files for the interpreter project. This was implemented based on the [Write You a Scheme](https://wespiser.com/writings/wyas/00_overview.html) book.

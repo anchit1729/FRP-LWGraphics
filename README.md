@@ -279,9 +279,19 @@ Note that there may likely be further optimizations and programming patterns, es
 
 The first limitation that immediately came to mind while working on this project was that in some sense, FRP really seems like a DSL built for the way Haskell represents information and instructions. Even reading through the implementations - although the core FRP libraries do not take up much space, the Racket implementation is much harder to read, at least for eyes that have not yet been exposed to Lisp/Scheme-like syntaxes for long durations of time. In Haskell, everything is concise and reads very similarly to actual mathematical notation - of course, this partly due to the way whitespaces are used in the language, but a large part of this is the amount of abstraction Haskell offers out of the box.
 
-A stylistic tendency that I noticed when working on the Haskell implementation, specifically on the graphics interfacing functions - despite Haskell's 'purity', the majority of graphics programming is done in an imperative style. Thus, the functions dealing with those parts of the code look much less 'declarative' and are subsequently harder to read for fresh eyes - `do` is used all over the place, as are monads to deal with side effects inherent to IO, Windowing and GUI applications. However, a pre-existing graphics library was used for Racket, and thus the relevant code is much more declarative in nature with the 'ugly' graphics interfacing handled by the library. This choice was made because (1) I had already implemented graphics interfacing modules for the Haskell implementation, following Conal Elliot's lecture notes, and (2) the focus of the project is more on the core functions of FRP and how it is used for reactive animations in a Fran-like package, not on the low-level graphics interfacing. My research interests are adjacents to graphics, and thus I implemented the Haskell graphics modules as a way to teach myself Haskell programming without it feeling tedious.
+A stylistic tendency that I noticed when working on the Haskell implementation, specifically on the graphics interfacing functions - despite Haskell's 'purity', the majority of graphics programming is done in an imperative style. Thus, the functions dealing with those parts of the code look much less 'declarative' and are subsequently harder to read for fresh eyes - `do` is used all over the place, as are monads to deal with side effects inherent to IO, Windowing and GUI applications. However, due to various factors, some out of my control (health-related), I was unable to implement a graphics-interfacing layer for the Racket FRP implementation. I did implement graphics interfacing modules for the Haskell implementation, following Conal Elliot's lecture notes, but was not able to port this implementation over to my Racket FRP library in time, and sincerely apologize for not being able to provide this deliverable in my submission. I have included some source files that I was working with to prototype Fran on Racket, but they do not execute properly.
 
-## Performance
+## Animations - Functional Reactive Animation
+
+Coming to the main attraction, slightly dulled by my failure to provide fully-functioning implementations in both Haskell and Racket, this project implements a version of Functional Reactive Animation using the Haskell FRP implementation described earlier. The following abstractions are defined in code:
+
+1. `Primitive` - Mathematical representations of the basic shapes the library exposes.
+2. `Graphic` - Wrapper for OpenGL IO interfacing, i.e. the code that does most of the heavy lifting for rendering.
+3. `Region` - Container for primitives, this abstraction allows primitives to be stacked and composed in different ways.
+4. `Drawing` - A similar wrapper to compose regions, and introduce colours.
+5. `Animation` - A stream transformer (i.e., pretty much a Behaviour) that outputs different `Drawing` instances for each time-step.
+
+Examples are included in code, and some fancier animations are shown in the video.
 
 ## Alternative Approaches
 

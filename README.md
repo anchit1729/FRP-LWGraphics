@@ -4,6 +4,8 @@ Implementations of the Functional Reactive Programming (FRP) Domain-Specific Lan
 
 This implementation follows the stream-based approach towards defining FRP constructs as outlined in the paper "Functional Reactive Programming from First Principles" [(paper link)](https://doi.org/10.1145/349299.349331). It builds this FRP implementation on top of a lightweight graphics library/wrapper that handles interfacing with OpenGL, based on [these lecture notes](http://www.cs.yale.edu/homes/hudak/SOE/powerpoi.htm) by Paul Hudak that provide a more up-to-date description of FRP for reactive graphics and animations. Two implementations are provided and compared - one in Haskell, and one in Racket.
 
+The demo video can be found [here](https://youtu.be/W980zeIHt1c)
+
 ## Introduction 
 
 Functional Reactive Programming (FRP) emerged as a powerful paradigm for programming reactive systems, first introduced in the [1997 paper](http://conal.net/papers/icfp97/) on Functional Reactive Animation (Fran) by Elliott and Hudak. FRP combines functional programming principles with reactive programming to handle time-varying values and event-based systems in a declarative manner. Since then, there have been multiple follow up works that explore different approaches towards implementing FRP, however, [Elliot himself](https://github.com/conal/talk-2015-essence-and-origins-of-frp?tab=readme-ov-file#readme) has stated that these representations do not capture the two basic requirements for an FRP implementation:

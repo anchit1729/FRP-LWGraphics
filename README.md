@@ -311,6 +311,12 @@ Another, more interesting area for future work that I have in mind is directly a
 
 Lastly, this is more of the same, but I would like to extend the Haskell implementation of Fran to 3D graphics and animations. The Racket implementation served as more of an illustrative/educational tool for me and helped me understand exactly where Haskell and FRP are different (most implementations seen in papers use Hugs or Haskell, which I found tricky to navigate in the sense that I sometimes accidentally assumed an FRP feature to be a feature of Haskell - the event mapping operator ==> is one example, and the way pattern matching and lambda functions work was another one for me). However, I really enjoyed learning Haskell, and would like to continue working with the language - thus, extending the animation library to 3D animations is a natural next step.
 
+## Running the Code Here
+
+I have provided the Cabal projects for my Haskell implementations of both the intermediate deliverable of a mini-interpreter REPL as well as the actual FRP/Animation program. For the Racket implementation, `FRP.rkt` is the main file that contains all the functioning code along with examples. The other `.rkt` source files are partial implementations from my progress while porting the graphics code to Racket.
+
+Some examples, especially those to do with the Haskell graphics implementation, need to be manually commented/uncommented. However, most examples will run directly. Similarly, some tests for the Racket implementation are commented and can be verified if need be. 
+
 ## Note
 
 My initial project pitch involved writing a mini-interpreter for Scheme to implement FRP and Fran. In hindsight, I see how significant an undertaking this project was, and it probably was not a reasonable goal to achieve within one term. However, I did make progress while writing an interpreter for Scheme before deciding against the idea, and was able to make a basic REPL. I've also included source files for the interpreter project here. This was implemented based on the [Write You a Scheme](https://wespiser.com/writings/wyas/00_overview.html) book. Although a detour from the main focus on FRP, this was a useful learning experience as well, and is how I familiarized myself with monads (and monadic evaluation for interpreters).
